@@ -1,0 +1,61 @@
+@startuml
+title Fitness Tracker - Class Diagram (Sprint 1)
+
+class User {
+  - username: str
+  - age: int
+  - height: Optional[float]
+  - weight: Optional[float]
+  + get_info()
+  + to_dict()
+}
+
+class Workout {
+  - name: str
+  - duration: int
+  + get_summary()
+}
+
+class Exercise {
+  - _name: str
+  - _calories: int
+  + burn_info()
+}
+
+class Scheduler {
+  + schedule_workout(user, workout)
+}
+
+class ObjectFactory {
+  + create_object(type, *args)
+}
+
+class IRepository <<interface>> {
+  + create(item_dict, type_)
+  + read_all()
+  + read_by_id(id)
+  + update(id, data)
+  + delete(id)
+  + find_by_type(type_)
+}
+
+class Repository {
+  - filename: str
+  + create(item_dict, type_)
+  + read_all()
+  + read_by_id(id)
+  + update(id, data)
+  + delete(id)
+  + find_by_type(type_)
+}
+
+User "1" -- "*" Workout : schedules >
+Workout "1" *-- "*" Exercise : contains >
+ObjectFactory ..> User
+ObjectFactory ..> Workout
+ObjectFactory ..> Exercise
+Scheduler ..> User
+Scheduler ..> Workout
+Repository ..|> IRepository
+
+@enduml
