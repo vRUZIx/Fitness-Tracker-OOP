@@ -1,0 +1,29 @@
+@startuml
+title Fitness Tracker - Sequence Diagram (Create & Schedule)
+
+actor User
+participant "CLI (main)" as CLI
+participant "ObjectFactory" as Factory
+participant "Repository" as Repo
+participant "Scheduler" as Scheduler
+
+User -> CLI: create-user(username, age)
+CLI -> Repo: create({username, age}, type_='user')
+Repo --> CLI: user_id
+CLI -> User: prints created id
+
+User -> CLI: create-workout(name, duration)
+CLI -> Repo: create({name, duration}, type_='workout')
+Repo --> CLI: workout_id
+CLI -> User: prints created id
+
+User -> CLI: schedule --user-id user_id --workout-id workout_id
+CLI -> Repo: read_by_id(user_id)
+CLI -> Repo: read_by_id(workout_id)
+CLI -> Scheduler: schedule_workout(user_obj, workout_obj)
+Scheduler --> CLI: "Scheduled (message)"
+CLI -> Repo: create({user_id, workout_id}, type_='schedule')
+Repo --> CLI: schedule_id
+CLI -> User: prints schedule id
+
+@enduml

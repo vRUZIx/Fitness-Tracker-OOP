@@ -1,13 +1,14 @@
 import argparse
+import os
+import logging
 from models.factory import ObjectFactory
 from repository.repository import Repository
 from services.scheduler import Scheduler
 from logging_config import configure_logging
 
-
-configure_logging()
-repo = Repository()
-scheduler = Scheduler()
+# Will be initialized in main() after parsing CLI options so we can honor --logfile
+repo = None
+scheduler = None
 
 
 def cli_create_user(args):
@@ -30,6 +31,45 @@ def cli_create_workout(args):
 def cli_list(args):
 	for r in repo.read_all():
 		print(r)
+
+
+def cli_list_schedules(args):
+	"""List schedule records in a human readable form."""
+	schedules = repo.find_by_type("schedule")
+	if not schedules:
+		print("No schedules found")
+		return
+	for s in schedules:
+		data = s.get("data", {})
+		user_id = data.get("user_id")
+		workout_id = data.get("workout_id")
+		# Try to resolve ids to summaries
+		user = repo.get_object_by_id(user_id) if user_id else None
+		workout = repo.get_object_by_id(workout_id) if workout_id else None
+		user_summary = user.get_info() if user and hasattr(user, "get_info") else (user_id or "Unknown user")
+		workout_summary = workout.get_summary() if workout and hasattr(workout, "get_summary") else (workout_id or "Unknown workout")
+		print(f"Schedule id={s.get('id')}: {user_summary} -> {workout_summary}")
+
+
+def cli_show_schedule(args):
+	"""Show a single schedule by id in human readable form."""
+	s = repo.read_by_id(args.id)
+	if not s or s.get("type") != "schedule":
+		print("Schedule not found")
+		return
+	data = s.get("data", {})
+	user_id = data.get("user_id")
+	workout_id = data.get("workout_id")
+	user = repo.get_object_by_id(user_id) if user_id else None
+	workout = repo.get_object_by_id(workout_id) if workout_id else None
+	if user and hasattr(user, "get_info"):
+		print(user.get_info())
+	else:
+		print(f"User id: {user_id}")
+	if workout and hasattr(workout, "get_summary"):
+		print(workout.get_summary())
+	else:
+		print(f"Workout id: {workout_id}")
 
 
 def cli_get(args):
@@ -58,8 +98,100 @@ def cli_schedule(args):
 	print(scheduler.schedule_workout(user_obj, workout_obj))
 
 
+def cli_update(args):
+	"""Update fields on an existing record.
+	Provide one or more `--set key=value` arguments. Types are inferred when possible.
+	"""
+	record = repo.read_by_id(args.id)
+	if not record:
+		print("Record not found")
+		return
+	if not args.set:
+		print("No updates provided. Use --set key=value")
+		return
+	updates = {}
+	for s in args.set:
+		if "=" not in s:
+			print(f"Ignoring invalid set value: {s}")
+			continue
+		k, v = s.split("=", 1)
+		k = k.strip()
+		v = v.strip()
+		# Try to convert to int/float/bool when appropriate
+		converted = v
+		if v.lower() in ("true", "false"):
+			converted = v.lower() == "true"
+		else:
+			try:
+				if "." in v:
+					converted = float(v)
+				else:
+					converted = int(v)
+			except ValueError:
+				converted = v
+		updates[k] = converted
+	merged = dict(record.get("data", {}))
+	merged.update(updates)
+	ok = repo.update(args.id, merged)
+	print(f"Updated: {ok}")
+	if ok:
+		print(repo.read_by_id(args.id))
+
+
+def cli_delete(args):
+	record = repo.read_by_id(args.id)
+	if not record:
+		print("Record not found")
+		return
+	if not args.yes:
+		confirm = input(f"Delete record id={args.id} type={record.get('type')}? (y/N): ").strip().lower()
+		if confirm != "y":
+			print("Aborted")
+			return
+	ok = repo.delete(args.id)
+	print(f"Deleted: {ok}")
+
+
+def cli_update_user(args):
+	record = repo.read_by_id(args.id)
+	if not record or record.get("type") != "user":
+		print("User not found")
+		return
+	merged = dict(record.get("data", {}))
+	if args.username is not None:
+		merged["username"] = args.username
+	if args.age is not None:
+		merged["age"] = args.age
+	if args.height is not None:
+		merged["height"] = args.height
+	if args.weight is not None:
+		merged["weight"] = args.weight
+	ok = repo.update(args.id, merged)
+	print(f"Updated: {ok}")
+	if ok:
+		print(repo.read_by_id(args.id))
+
+
+def cli_update_workout(args):
+	record = repo.read_by_id(args.id)
+	if not record or record.get("type") != "workout":
+		print("Workout not found")
+		return
+	merged = dict(record.get("data", {}))
+	if args.name is not None:
+		merged["name"] = args.name
+	if args.duration is not None:
+		merged["duration"] = args.duration
+	ok = repo.update(args.id, merged)
+	print(f"Updated: {ok}")
+	if ok:
+		print(repo.read_by_id(args.id))
+
+
 def build_parser():
 	p = argparse.ArgumentParser(description="Fitness Tracker CLI")
+	# Global options
+	p.add_argument("--logfile", help="Path to logfile. If provided, overrides default logs/fitness_tracker.log")
 	sub = p.add_subparsers(dest="cmd")
 
 	cu = sub.add_parser("create-user")
@@ -86,12 +218,57 @@ def build_parser():
 	sch.add_argument("--workout-id", required=True)
 	sch.set_defaults(func=cli_schedule)
 
+	lsch = sub.add_parser("list-schedules")
+	lsch.set_defaults(func=cli_list_schedules)
+
+	ss = sub.add_parser("show-schedule")
+	ss.add_argument("--id", required=True)
+	ss.set_defaults(func=cli_show_schedule)
+
+	upd = sub.add_parser("update")
+	upd.add_argument("--id", required=True)
+	upd.add_argument("--set", "-s", action="append", help="Set a field: key=value. Repeat for multiple fields.")
+	upd.set_defaults(func=cli_update)
+
+	delp = sub.add_parser("delete")
+	delp.add_argument("--id", required=True)
+	delp.add_argument("--yes", action="store_true", help="Skip confirmation")
+	delp.set_defaults(func=cli_delete)
+
+	uu = sub.add_parser("update-user")
+	uu.add_argument("--id", required=True)
+	uu.add_argument("--username")
+	uu.add_argument("--age", type=int)
+	uu.add_argument("--height", type=float)
+	uu.add_argument("--weight", type=float)
+	uu.set_defaults(func=cli_update_user)
+
+	uw = sub.add_parser("update-workout")
+	uw.add_argument("--id", required=True)
+	uw.add_argument("--name")
+	uw.add_argument("--duration", type=int)
+	uw.set_defaults(func=cli_update_workout)
+
 	return p
 
 
 def main():
 	parser = build_parser()
 	args = parser.parse_args()
+	# Configure logging now that we have CLI options (e.g. --logfile)
+	logfile = getattr(args, "logfile", None)
+	if logfile:
+		# If user provided a full path, split dir/name. If only a name, leave dir default.
+		log_dir = os.path.dirname(logfile) or None
+		log_name = os.path.basename(logfile)
+		configure_logging(level=logging.INFO, log_dir=log_dir, logfile_name=log_name)
+	else:
+		configure_logging()
+
+	# Initialize repository and services after logging is configured
+	global repo, scheduler
+	repo = Repository()
+	scheduler = Scheduler()
 	if not vars(args):
 		# no args provided; run default demo
 		user = ObjectFactory.create_object("user", "Ruzi", 21)
@@ -109,3 +286,4 @@ def main():
 
 if __name__ == "__main__":
 	main()
+

@@ -1,0 +1,39 @@
+@startuml
+left to right direction
+title Fitness Tracker - Use Case Diagram
+
+actor User
+actor Trainer
+
+package "Fitness Tracker System" {
+  (Create Account) as CreateAccount
+  (Login) as Login
+  (Create Workout) as CreateWorkout
+  (View Workouts) as ViewWorkouts
+  (Schedule Workout) as ScheduleWorkout
+  (Update Profile) as UpdateProfile
+  (Delete Account) as DeleteAccount
+  (List Records) as ListRecords
+}
+
+User -- CreateAccount
+User -- Login
+Login .> ViewWorkouts : includes
+Login .> CreateWorkout : includes
+Login .> ScheduleWorkout : includes
+User -- ViewWorkouts
+User -- ScheduleWorkout
+User -- UpdateProfile
+User -- DeleteAccount
+
+Trainer -- CreateWorkout
+Trainer -- ListRecords
+
+CreateWorkout ..> ScheduleWorkout : <<extend>>
+
+note right of ScheduleWorkout
+  Schedules a workout for a user
+  Persists a `schedule` record
+end note
+
+@enduml
