@@ -1,14 +1,130 @@
 [
     {
-        "user": "User: Ruzi, Age: 19, Height: N/A, Weight: N/A",
-        "workout": "Workout: Chest Day, Duration: 45 minutes"
+        "id": "20cc2f1530664c7390477802d922b271",
+        "type": "demo",
+        "data": {
+            "user": "User: Ruzi, Age: 21, Height: N/A, Weight: N/A",
+            "workout": "Workout: Chest Day, Duration: 45 minutes"
+        }
     },
     {
-        "user": "User: Ruzi, Age: 21, Height: N/A, Weight: N/A",
-        "workout": "Workout: Chest Day, Duration: 45 minutes"
+        "id": "1ca57b132a984ef1bca8500c09e02f3f",
+        "type": "user",
+        "data": {
+            "username": "Test",
+            "age": 22
+        }
     },
     {
-        "user": "User: Ruzi, Age: 21, Height: N/A, Weight: N/A",
-        "workout": "Workout: Chest Day, Duration: 45 minutes"
+        "id": "cc7aa66180c8443b9f1190784d8c86bb",
+        "type": "user",
+        "data": {
+            "username": "Ali",
+            "age": 42
+        }
+    },
+    {
+        "id": "24b0aa44453fb44eb7f0aea3353b7a44",
+        "type": "workout",
+        "data": {
+            "name": "Leg Day",
+            "duration": 50
+        }
+    },
+    {
+        "id": "47c7a4c630054803992b3a71e80bdbc2",
+        "type": "schedule",
+        "data": {
+            "user_id": "cc7aa66180c8443b9f1190784d8c86bb",
+            "workout_id": "24b0aa44453fb44eb7f0aea3353b7a44"
+        }
+    },
+    {
+        "id": "cc0c1995898f49e9ad883bd4951e7a47",
+        "type": "user",
+        "data": {
+            "username": "Leyla",
+            "age": 24,
+            "height": 165.0,
+            "weight": 60.0
+        }
+    },
+    {
+        "id": "888bcb2188be4c50b4779cb4fd904225",
+        "type": "schedule",
+        "data": {
+            "user_id": "cc0c1995898f49e9ad883bd4951e7a47",
+            "workout_id": "24b0aa44453fb44eb7f0aea3353b7a44"
+        }
+    },
+    {
+        "id": "3885e87788474c55ae8870bd06fd953",
+        "type": "user",
+        "data": {
+            "username": "Az\u0259r",
+            "age": 19,
+            "height": 190.0,
+            "weight": 88.0
+        }
+    },
+    {
+        "id": "1c412ea0059e413f9f6996e78e4d3f23",
+        "type": "workout",
+        "data": {
+            "name": "upper day",
+            "duration": 50
+        }
+    },
+    {
+        "id": "b97ee086c2af480884bb7c3f036ee550",
+        "type": "user",
+        "data": {
+            "username": "Gokalaf",
+            "age": 26
+        }
+    },
+    {
+        "id": "69e997f3c8d54102b8ca61b8efd71eb9",
+        "type": "workout",
+        "data": {
+            "name": "Leg day",
+            "duration": 55
+        }
+    },
+    {
+        "id": "185ab4ee829749919fae29d70f3f0f2b",
+        "type": "user",
+        "data": {
+            "username": "Orxan",
+            "age": 19
+        }
+    },
+    {
+        "id": "f4a6cc6d00ec49f8873b2154a087413b",
+        "type": "workout",
+        "data": {
+            "name": "Shoulder day",
+            "duration": 30
+        }
+    },
+    {
+        "id": "f20e019ddd38428b9c004cbd76925f64",
+        "type": "user",
+        "data": {
+            "username": "Talha",
+            "age": 30,
+            "height": 180.0,
+            "weight": 90.0
+        }
+    },
+    {
+        "id": "cb06152c08b748e38f79f2aef5b7c174",
+        "type": "user",
+        "data": {
+            "username": "Talha",
+            "age": 20,
+            "height": 180.0,
+            "weight": 90.0
+        }
     }
 ]
