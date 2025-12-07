@@ -32,8 +32,31 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          # install test requirements (pytest, pytest-cov) if not present
+          pip install pytest pytest-cov
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          python -m pytest -q
+          # produce XML and HTML coverage reports for upload or external services
+          python -m pytest --cov=src --cov-report=xml:coverage.xml --cov-report=html:coverage_html -q
+
+      - name: Upload coverage XML
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
+
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: coverage_html
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          # If your repo is private, set CODECOV_TOKEN in Secrets and uncomment token line
+          # token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false

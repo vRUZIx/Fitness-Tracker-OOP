@@ -1,14 +1,46 @@
 [
     {
-        "user": "User: Ruzi, Age: 19, Height: N/A, Weight: N/A",
+        "user": "User: Ruzi, Age: 19, Height: 175, Weight: 72 kg",
         "workout": "Workout: Chest Day, Duration: 45 minutes"
     },
     {
-        "user": "User: Ruzi, Age: 21, Height: N/A, Weight: N/A",
+        "user": "User: Seid, Age: 19, Height: N/A, Weight: N/A",
         "workout": "Workout: Chest Day, Duration: 45 minutes"
     },
     {
-        "user": "User: Ruzi, Age: 21, Height: N/A, Weight: N/A",
+        "user": "User: Gokalaf, Age: 21, Height: 193, Weight: 120 kg",
         "workout": "Workout: Chest Day, Duration: 45 minutes"
+    },
+    {
+        "id": "20aad9a8d1d247b98545fb14313c68aa",
+        "type": "user",
+        "data": {
+            "username": "alice",
+            "age": 30
+        }
+    },
+    {
+        "id": "dec446149e8b40bcb18d9e48cc7a59d7",
+        "type": "workout",
+        "data": {
+            "name": "Leg Day",
+            "duration": 45
+        }
+    },
+    {
+        "id": "050439ea46f041669ed935a759ae4214",
+        "type": "user",
+        "data": {
+            "username": "alice",
+            "age": 30
+        }
+    },
+    {
+        "id": "3c93559af2d84dae868b06a473c4f07e",
+        "type": "workout",
+        "data": {
+            "name": "Leg Day",
+            "duration": 45
+        }
     }
 ]
